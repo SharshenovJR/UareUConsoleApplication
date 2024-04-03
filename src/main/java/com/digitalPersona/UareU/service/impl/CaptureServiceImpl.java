@@ -29,6 +29,7 @@ public class CaptureServiceImpl implements CaptureService {
                 Thread.sleep(500);
             }
         }
+        System.out.print("Finger captured");
         return reader.Capture(Fid.Format.ISO_19794_4_2005, Reader.ImageProcessing.IMG_PROC_DEFAULT, 500, 10000);
     }
 }

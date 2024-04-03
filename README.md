@@ -38,7 +38,7 @@ This application provides endpoints to interact with Digital Persona U.are.U fin
 ## Usage
 
 Ensure that the Digital Persona U.are.U fingerprint reader is connected to your computer.
-Open your web browser and navigate to http://localhost:8080.
+Open your web browser and navigate to http://localhost:8282.
 Use the provided endpoints to interact with the fingerprint reader:
 - /v2/scanner/devices: Get a list of connected fingerprint reader devices.
 - /v2/scanner/capture/image: Capture a fingerprint image.
