@@ -12,6 +12,7 @@ This application provides endpoints to interact with Digital Persona U.are.U fin
 - Gradle
 - Digital Persona U.are.U SDK
 - Spring Boot
+- SDK
 
 ## Installation
 
