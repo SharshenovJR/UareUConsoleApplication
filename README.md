@@ -10,9 +10,8 @@ This application provides endpoints to interact with Digital Persona U.are.U fin
 
 - Java 8 or higher
 - Gradle
-- Digital Persona U.are.U SDK
+- Digital Persona U.are.U SDK (3.2.0)
 - Spring Boot
-- SDK (DigitalPersona U.are.U)
 
 ## Installation
 
