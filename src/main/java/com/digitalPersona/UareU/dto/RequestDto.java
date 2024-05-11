@@ -1,6 +1,5 @@
 package com.digitalPersona.UareU.dto;
 
-import com.digitalpersona.uareu.Fmd;
 import lombok.*;
 
 @Getter
@@ -8,7 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FingerprintDto {
-    private Fmd.Format format;
-    private byte[] data;
+public class RequestDto {
+    private String format;
 }

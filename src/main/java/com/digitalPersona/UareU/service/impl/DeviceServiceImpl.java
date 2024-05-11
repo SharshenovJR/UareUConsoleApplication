@@ -1,7 +1,7 @@
 package com.digitalPersona.UareU.service.impl;
 
 import com.digitalPersona.UareU.dto.DeviceDto;
-import com.digitalPersona.UareU.dto.FingerprintDto;
+import com.digitalPersona.UareU.dto.ResponseDto;
 import com.digitalPersona.UareU.mapper.DeviceMapper;
 import com.digitalPersona.UareU.mapper.FingerprintMapper;
 import com.digitalPersona.UareU.service.CaptureService;
@@ -12,7 +12,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,14 +54,21 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public FingerprintDto capture() throws UareUException, InterruptedException {
+    public ResponseDto capture() throws UareUException, InterruptedException, IOException {
         Reader.CaptureResult captureResult = makeCapture();
         if (captureResult == null || captureResult.image == null) {
             throw new UareUException(96075807);
         }
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(captureResult.image, FORMAT);
-        return fingerprintMapper.toDto(fmd);
+        Fid.Fiv view = captureResult.image.getViews()[0];
+        BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        bufferedImage.getRaster().setDataElements(0, 0, view.getWidth(), view.getHeight(), view.getImageData());
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ImageIO.write(bufferedImage, "png", outputStream);
+            byte[] byteArray = outputStream.toByteArray();
+            return fingerprintMapper.toDto(fmd, byteArray);
+        }
     }
 
     @Override

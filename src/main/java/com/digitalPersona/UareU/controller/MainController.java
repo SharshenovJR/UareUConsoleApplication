@@ -1,7 +1,7 @@
 package com.digitalPersona.UareU.controller;
 
 import com.digitalPersona.UareU.dto.DeviceDto;
-import com.digitalPersona.UareU.dto.FingerprintDto;
+import com.digitalPersona.UareU.dto.ResponseDto;
 import com.digitalPersona.UareU.service.DeviceService;
 import com.digitalpersona.uareu.Fmd;
 import com.digitalpersona.uareu.UareUException;
@@ -47,7 +47,7 @@ public class MainController {
     }
 
     @GetMapping("/capture")
-    public ResponseEntity<FingerprintDto> capture() throws UareUException, InterruptedException {
+    public ResponseEntity<ResponseDto> capture() throws UareUException, InterruptedException, IOException {
         return ResponseEntity.ok(deviceService.capture());
     }
 

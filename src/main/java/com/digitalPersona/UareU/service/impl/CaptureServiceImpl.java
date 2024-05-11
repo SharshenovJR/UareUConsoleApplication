@@ -21,7 +21,6 @@ public class CaptureServiceImpl implements CaptureService {
         }
         boolean fingerDetected = false;
         while (!fingerDetected) {
-            System.out.println("Please set finger to device");
             Reader.Status rs = reader.GetStatus();
             if (rs.status == Reader.ReaderStatus.READY) {
                 fingerDetected = true;
@@ -29,7 +28,6 @@ public class CaptureServiceImpl implements CaptureService {
                 Thread.sleep(500);
             }
         }
-        System.out.print("Finger captured");
         return reader.Capture(Fid.Format.ISO_19794_4_2005, Reader.ImageProcessing.IMG_PROC_DEFAULT, 500, 10000);
     }
 }
