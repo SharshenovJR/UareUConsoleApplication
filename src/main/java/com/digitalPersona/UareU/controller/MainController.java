@@ -1,6 +1,7 @@
 package com.digitalPersona.UareU.controller;
 
 import com.digitalPersona.UareU.dto.DeviceDto;
+import com.digitalPersona.UareU.dto.RequestDto;
 import com.digitalPersona.UareU.dto.ResponseDto;
 import com.digitalPersona.UareU.service.DeviceService;
 import com.digitalpersona.uareu.Fmd;
@@ -30,9 +31,9 @@ public class MainController {
         return ResponseEntity.ok(deviceService.getDevices());
     }
 
-    @GetMapping("/capture/image")
-    public ResponseEntity<byte[]> captureImage() throws UareUException, IOException, InterruptedException {
-        BufferedImage image = deviceService.getCapturedImage();
+    @PostMapping("/capture/image")
+    public ResponseEntity<byte[]> captureImage(@RequestBody RequestDto dto) throws UareUException, IOException, InterruptedException {
+        BufferedImage image = deviceService.getCapturedImage(dto);
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", byteArrayOutputStream);
             byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -42,19 +43,19 @@ public class MainController {
         }
     }
 
-    @GetMapping("/capture")
-    public ResponseEntity<ResponseDto> capture() throws UareUException, InterruptedException, IOException {
-        return ResponseEntity.ok(deviceService.capture());
+    @PostMapping("/capture")
+    public ResponseEntity<ResponseDto> capture(@RequestBody RequestDto dto) throws UareUException, InterruptedException, IOException {
+        return ResponseEntity.ok(deviceService.capture(dto));
     }
 
-    @GetMapping("/enroll")
-    public ResponseEntity<byte[]> enroll() throws UareUException, InterruptedException {
-        Fmd enroll = deviceService.enroll();
+    @PostMapping("/enroll")
+    public ResponseEntity<byte[]> enroll(@RequestBody RequestDto dto) throws UareUException, InterruptedException {
+        Fmd enroll = deviceService.enroll(dto);
         return ResponseEntity.ok(enroll.getData());
     }
 
-    @GetMapping("/compare")
-    public ResponseEntity<Boolean> compare() throws UareUException, InterruptedException {
-        return ResponseEntity.ok(deviceService.compare());
+    @PostMapping("/compare")
+    public ResponseEntity<Boolean> compare(@RequestBody RequestDto dto) throws UareUException, InterruptedException {
+        return ResponseEntity.ok(deviceService.compare(dto));
     }
 }
