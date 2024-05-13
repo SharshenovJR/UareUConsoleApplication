@@ -43,6 +43,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public BufferedImage getCapturedImage(RequestDto dto) throws UareUException, InterruptedException {
+        checkParams(dto);
         Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Fid.Fiv view = result.image.getViews()[0];
@@ -53,6 +54,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public ResponseDto capture(RequestDto dto) throws UareUException, InterruptedException, IOException {
+        checkParams(dto);
         Reader.CaptureResult captureResult = makeCapture(dto);
         if (captureResult == null || captureResult.image == null) throw new UareUException(96075807);
         Engine engine = UareUGlobal.GetEngine();
@@ -69,6 +71,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Fmd enroll(RequestDto dto) throws UareUException, InterruptedException {
+        checkParams(dto);
         Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to enroll");
         Engine engine = UareUGlobal.GetEngine();
@@ -79,6 +82,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public boolean compare(RequestDto dto) throws UareUException, InterruptedException {
+        checkParams(dto);
         Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to compare");
         Engine engine = UareUGlobal.GetEngine();
@@ -101,5 +105,9 @@ public class DeviceServiceImpl implements DeviceService {
         collection.GetReaders();
         if (collection.isEmpty()) throw new RuntimeException("No fingerprint reader available!");
         return collection.get(0);
+    }
+
+    public void checkParams(RequestDto dto) throws UareUException {
+        if (dto.getFormatFmd() == null || dto.getFormatFid() == null) throw new UareUException(96075796);
     }
 }
