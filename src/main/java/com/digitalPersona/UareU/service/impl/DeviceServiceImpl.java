@@ -44,9 +44,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public BufferedImage getCapturedImage() throws UareUException, InterruptedException {
         Reader.CaptureResult result = makeCapture();
-        if (result == null || result.image == null) {
-            throw new RuntimeException("Failed to capture");
-        }
+        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Fid.Fiv view = result.image.getViews()[0];
         BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         bufferedImage.getRaster().setDataElements(0, 0, view.getWidth(), view.getHeight(), view.getImageData());
@@ -56,9 +54,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public ResponseDto capture() throws UareUException, InterruptedException, IOException {
         Reader.CaptureResult captureResult = makeCapture();
-        if (captureResult == null || captureResult.image == null) {
-            throw new UareUException(96075807);
-        }
+        if (captureResult == null || captureResult.image == null) throw new UareUException(96075807);
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(captureResult.image, FORMAT);
         Fid.Fiv view = captureResult.image.getViews()[0];
@@ -74,9 +70,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Fmd enroll() throws UareUException, InterruptedException {
         Reader.CaptureResult result = makeCapture();
-        if (result == null || result.image == null) {
-            throw new RuntimeException("Failed to capture");
-        }
+        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(result.image, FORMAT);
         this.fmd = fmd;
@@ -86,9 +80,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public boolean compare() throws UareUException, InterruptedException {
         Reader.CaptureResult result = makeCapture();
-        if (result == null || result.image == null) {
-            throw new RuntimeException("Failed to capture");
-        }
+        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(result.image, FORMAT);
         Fmd.Format format = fmd.getFormat();
@@ -102,9 +94,7 @@ public class DeviceServiceImpl implements DeviceService {
     public Reader.CaptureResult makeCapture() throws UareUException, InterruptedException {
         ReaderCollection collection = UareUGlobal.GetReaderCollection();
         collection.GetReaders();
-        if (collection.isEmpty()) {
-            throw new RuntimeException("No fingerprint reader available!");
-        }
+        if (collection.isEmpty()) throw new RuntimeException("No fingerprint reader available!");
         Reader reader = collection.get(0);
         return captureService.capture(reader, false);
     }

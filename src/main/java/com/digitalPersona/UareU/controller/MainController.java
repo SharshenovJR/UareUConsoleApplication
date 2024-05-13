@@ -10,9 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,15 +33,13 @@ public class MainController {
     @GetMapping("/capture/image")
     public ResponseEntity<byte[]> captureImage() throws UareUException, IOException, InterruptedException {
         BufferedImage image = deviceService.getCapturedImage();
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", byteArrayOutputStream);
-        byte[] imageBytes = byteArrayOutputStream.toByteArray();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        }
     }
 
     @GetMapping("/capture")
