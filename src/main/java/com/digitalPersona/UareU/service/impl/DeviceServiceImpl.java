@@ -1,6 +1,7 @@
 package com.digitalPersona.UareU.service.impl;
 
 import com.digitalPersona.UareU.dto.DeviceDto;
+import com.digitalPersona.UareU.dto.RequestDto;
 import com.digitalPersona.UareU.dto.ResponseDto;
 import com.digitalPersona.UareU.mapper.DeviceMapper;
 import com.digitalPersona.UareU.mapper.FingerprintMapper;
@@ -27,7 +28,6 @@ public class DeviceServiceImpl implements DeviceService {
     private final CaptureService captureService;
     private final FingerprintMapper fingerprintMapper;
     private final Dpfj dpfj = new Dpfj();
-    private final Fmd.Format FORMAT = Fmd.Format.ISO_19794_2_2005;
 
     @Getter
     private Fmd fmd;
@@ -42,8 +42,8 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public BufferedImage getCapturedImage() throws UareUException, InterruptedException {
-        Reader.CaptureResult result = makeCapture();
+    public BufferedImage getCapturedImage(RequestDto dto) throws UareUException, InterruptedException {
+        Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Fid.Fiv view = result.image.getViews()[0];
         BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -52,11 +52,11 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public ResponseDto capture() throws UareUException, InterruptedException, IOException {
-        Reader.CaptureResult captureResult = makeCapture();
+    public ResponseDto capture(RequestDto dto) throws UareUException, InterruptedException, IOException {
+        Reader.CaptureResult captureResult = makeCapture(dto);
         if (captureResult == null || captureResult.image == null) throw new UareUException(96075807);
         Engine engine = UareUGlobal.GetEngine();
-        Fmd fmd = engine.CreateFmd(captureResult.image, FORMAT);
+        Fmd fmd = engine.CreateFmd(captureResult.image, dto.getFormatFmd());
         Fid.Fiv view = captureResult.image.getViews()[0];
         BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         bufferedImage.getRaster().setDataElements(0, 0, view.getWidth(), view.getHeight(), view.getImageData());
@@ -68,21 +68,21 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public Fmd enroll() throws UareUException, InterruptedException {
-        Reader.CaptureResult result = makeCapture();
+    public Fmd enroll(RequestDto dto) throws UareUException, InterruptedException {
+        Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Engine engine = UareUGlobal.GetEngine();
-        Fmd fmd = engine.CreateFmd(result.image, FORMAT);
+        Fmd fmd = engine.CreateFmd(result.image, dto.getFormatFmd());
         this.fmd = fmd;
         return fmd;
     }
 
     @Override
-    public boolean compare() throws UareUException, InterruptedException {
-        Reader.CaptureResult result = makeCapture();
+    public boolean compare(RequestDto dto) throws UareUException, InterruptedException {
+        Reader.CaptureResult result = makeCapture(dto);
         if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
         Engine engine = UareUGlobal.GetEngine();
-        Fmd fmd = engine.CreateFmd(result.image, FORMAT);
+        Fmd fmd = engine.CreateFmd(result.image, dto.getFormatFmd());
         Fmd.Format format = fmd.getFormat();
         byte[] data = fmd.getData();
         Fmd imported = dpfj.import_fmd(data, format, format);
@@ -91,11 +91,11 @@ public class DeviceServiceImpl implements DeviceService {
         return compared < FALSE_POSITIVE_RATE;
     }
 
-    public Reader.CaptureResult makeCapture() throws UareUException, InterruptedException {
+    public Reader.CaptureResult makeCapture(RequestDto dto) throws UareUException, InterruptedException {
         ReaderCollection collection = UareUGlobal.GetReaderCollection();
         collection.GetReaders();
         if (collection.isEmpty()) throw new RuntimeException("No fingerprint reader available!");
         Reader reader = collection.get(0);
-        return captureService.capture(reader, false);
+        return captureService.capture(reader, false, dto.getFormatFid());
     }
 }
