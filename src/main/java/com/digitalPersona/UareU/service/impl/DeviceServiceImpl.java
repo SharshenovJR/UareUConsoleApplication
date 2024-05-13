@@ -70,7 +70,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Fmd enroll(RequestDto dto) throws UareUException, InterruptedException {
         Reader.CaptureResult result = makeCapture(dto);
-        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
+        if (result == null || result.image == null) throw new RuntimeException("Failed to enroll");
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(result.image, dto.getFormatFmd());
         this.fmd = fmd;
@@ -80,7 +80,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public boolean compare(RequestDto dto) throws UareUException, InterruptedException {
         Reader.CaptureResult result = makeCapture(dto);
-        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
+        if (result == null || result.image == null) throw new RuntimeException("Failed to compare");
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(result.image, dto.getFormatFmd());
         Fmd.Format format = fmd.getFormat();
@@ -92,10 +92,14 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public Reader.CaptureResult makeCapture(RequestDto dto) throws UareUException, InterruptedException {
+        Reader reader = getFirstReader();
+        return captureService.capture(reader, false, dto.getFormatFid());
+    }
+
+    public Reader getFirstReader() throws UareUException {
         ReaderCollection collection = UareUGlobal.GetReaderCollection();
         collection.GetReaders();
         if (collection.isEmpty()) throw new RuntimeException("No fingerprint reader available!");
-        Reader reader = collection.get(0);
-        return captureService.capture(reader, false, dto.getFormatFid());
+        return collection.get(0);
     }
 }
