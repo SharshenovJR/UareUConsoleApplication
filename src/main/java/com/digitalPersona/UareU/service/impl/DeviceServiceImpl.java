@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,20 +43,9 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public BufferedImage getCapturedImage(RequestDto dto) throws UareUException, InterruptedException {
-        checkParams(dto);
-        Reader.CaptureResult result = makeCapture(dto);
-        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
-        Fid.Fiv view = result.image.getViews()[0];
-        BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        bufferedImage.getRaster().setDataElements(0, 0, view.getWidth(), view.getHeight(), view.getImageData());
-        return bufferedImage;
-    }
-
-    @Override
     public ResponseDto capture(RequestDto dto) throws UareUException, InterruptedException, IOException {
         checkParams(dto);
-        Reader.CaptureResult captureResult = makeCapture(dto);
+        Reader.CaptureResult captureResult = takeFingerprint(dto);
         if (captureResult == null || captureResult.image == null) throw new UareUException(96075807);
         Engine engine = UareUGlobal.GetEngine();
         Fmd fmd = engine.CreateFmd(captureResult.image, dto.getFormatFmd());
@@ -67,6 +57,17 @@ public class DeviceServiceImpl implements DeviceService {
             byte[] byteArray = outputStream.toByteArray();
             return fingerprintMapper.toDto(fmd, byteArray);
         }
+    }
+
+    @Override
+    public BufferedImage getCapturedImage(RequestDto dto) throws UareUException, InterruptedException {
+        checkParams(dto);
+        Reader.CaptureResult result = makeCapture(dto);
+        if (result == null || result.image == null) throw new RuntimeException("Failed to capture");
+        Fid.Fiv view = result.image.getViews()[0];
+        BufferedImage bufferedImage = new BufferedImage(view.getWidth(), view.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        bufferedImage.getRaster().setDataElements(0, 0, view.getWidth(), view.getHeight(), view.getImageData());
+        return bufferedImage;
     }
 
     @Override
@@ -100,6 +101,18 @@ public class DeviceServiceImpl implements DeviceService {
         return captureService.capture(reader, false, dto.getFormatFid());
     }
 
+    public Reader.CaptureResult takeFingerprint(RequestDto dto) throws UareUException, InterruptedException {
+        Reader reader = getReader(dto.getDeviceNumber());
+        return captureService.capture(reader, false, dto.getFormatFid());
+    }
+
+    public Reader getReader(int number) throws UareUException {
+        ReaderCollection collection = UareUGlobal.GetReaderCollection();
+        collection.GetReaders();
+        if (collection.isEmpty() || collection.get(number) == null) throw new RuntimeException("No fingerprint reader available!");
+        return collection.get(number);
+    }
+
     public Reader getFirstReader() throws UareUException {
         ReaderCollection collection = UareUGlobal.GetReaderCollection();
         collection.GetReaders();
@@ -108,6 +121,6 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public void checkParams(RequestDto dto) throws UareUException {
-        if (dto.getFormatFmd() == null || dto.getFormatFid() == null) throw new UareUException(96075796);
+        if (dto.getFormatFmd() == null || dto.getFormatFid() == null || Objects.deepEquals(dto.getDeviceNumber(), null)) throw new UareUException(96075796);
     }
 }
