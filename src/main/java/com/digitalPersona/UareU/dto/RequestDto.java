@@ -12,4 +12,5 @@ import lombok.*;
 public class RequestDto {
     private Fmd.Format formatFmd;
     private Fid.Format formatFid;
+    private int deviceNumber;
 }
