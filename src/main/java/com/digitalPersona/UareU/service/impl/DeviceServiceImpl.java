@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +36,11 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public List<DeviceDto> getDevices() throws UareUException {
+        AtomicLong idCounter = new AtomicLong();
         ReaderCollection collection = UareUGlobal.GetReaderCollection();
         collection.GetReaders();
         return collection.stream()
-                .map(deviceMapper::toDto)
+                .map(reader -> deviceMapper.toDto(reader, idCounter.getAndIncrement()))
                 .collect(Collectors.toList());
     }
 
