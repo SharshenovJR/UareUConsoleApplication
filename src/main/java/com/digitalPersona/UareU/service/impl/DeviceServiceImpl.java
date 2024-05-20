@@ -104,7 +104,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public Reader.CaptureResult takeFingerprint(RequestDto dto) throws UareUException, InterruptedException {
-        Reader reader = getReader(dto.getDeviceNumber());
+        Reader reader = getReader(dto.getDeviceSeq());
         return captureService.capture(reader, false, dto.getFormatFid());
     }
 
@@ -123,6 +123,6 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public void checkParams(RequestDto dto) throws UareUException {
-        if (dto.getFormatFmd() == null || dto.getFormatFid() == null || Objects.deepEquals(dto.getDeviceNumber(), null)) throw new UareUException(96075796);
+        if (dto.getFormatFmd() == null || dto.getFormatFid() == null || Objects.deepEquals(dto.getDeviceSeq(), null)) throw new UareUException(96075796);
     }
 }
